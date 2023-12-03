@@ -13,8 +13,6 @@
 # 7. Si no excede agregamos el id del juego a una lista.
 # 8. Sumamos la lista de ids.
 #
-# NOTA: si un dia, solo tiene un digito, este debe ser doblado.
-#
 # Ejemplo:
 #
 # Game 1: 3 blue, 4 red; 1 red, 2 green, 6 blue; 2 green
@@ -32,7 +30,22 @@
 #
 # PARTE 2
 #
-# TBD
+# en cada juego, determina cual es la cantidad de minima de cubos que hubiese hecho el juego posible?
+#
+# Modificacion al proceso de PARTE 1
+# 6. Sacamos el maximo valor de cada color.
+# 7. Multiplicamos los maximos de cada color (potencia) por juego y agregamos a la lista.
+# 8. Sumamos la lista de potencias.
+#
+# En el juego 1, el minimo pudo haber sido 4 red, 2 green, and 6 blue cubes.
+# En el juego 2, el minimo pudo haber sido 1 red, 3 green, and 4 blue cubes.
+# En el juego 3, el minimo pudo haber sido 20 red, 13 green, and 6 blue cubes.
+# En el juego 4, el minimo pudo haber sido 14 red, 3 green, and 15 blue cubes.
+# En el juego 4, el minimo pudo haber sido 6 red, 3 green, and 2 blue cubes.
+# La potencia de un set de cubes es igual a los numeros de red, green, and blue cubes multiplicados juntos.
+# La potencia del minimo del set de cubes en el juego 1 es 48.
+# En los juegos 2-5 seria 12, 1560, 630, y 36, respectivamente.
+# Sumandolos totaliza a 2286.
 
 
 import os
@@ -50,9 +63,13 @@ GAME_CONFIG = {
 with open(INPUT_FILEPATH, mode="r", encoding="utf-8") as f:
     valid_ids = []
     for line in f.readlines():
+        MAX = {
+            "red": 0,
+            "green": 0,
+            "blue": 0,
+        }
         game, rounds = line.split(":", maxsplit=1)
         _, game_id = game.split(" ", maxsplit=1)
-        valid_ids.append(int(game_id))
         results = rounds.split(";")
         for result in results:
             result = result.strip()
@@ -60,14 +77,11 @@ with open(INPUT_FILEPATH, mode="r", encoding="utf-8") as f:
             for color in colors:
                 color = color.strip()
                 quantity, value = color.split(" ")
-                if int(quantity) > GAME_CONFIG[value]:
-                    valid_ids.pop()
-                    break
-                elif int(quantity) < GAME_CONFIG[value]:
+                if int(quantity) > MAX[value]:
+                    MAX[value] = int(quantity)
+                elif int(quantity) < MAX[value]:
                     continue
                 else:
                     RuntimeError("Something went wrong...")
-            else:
-                continue  # only executed if the inner loop did NOT break
-            break
+        valid_ids.append(MAX["red"] * MAX["green"] * MAX["blue"])
     print("Sum: ", sum(valid_ids))
