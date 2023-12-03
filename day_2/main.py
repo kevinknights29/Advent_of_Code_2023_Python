@@ -41,8 +41,33 @@ CURRENT_PATH = os.path.dirname(__file__)
 INPUT_FILE = "data/input.txt"
 INPUT_FILEPATH = os.path.join(CURRENT_PATH, INPUT_FILE)
 
+GAME_CONFIG = {
+    "red": 12,
+    "green": 13,
+    "blue": 14,
+}
+
 with open(INPUT_FILEPATH, mode="r", encoding="utf-8") as f:
     valid_ids = []
     for line in f.readlines():
-        game, _ = line.split(":", maxsplit=1)
+        game, rounds = line.split(":", maxsplit=1)
         _, game_id = game.split(" ", maxsplit=1)
+        valid_ids.append(int(game_id))
+        results = rounds.split(";")
+        for result in results:
+            result = result.strip()
+            colors = result.split(",")
+            for color in colors:
+                color = color.strip()
+                quantity, value = color.split(" ")
+                if int(quantity) > GAME_CONFIG[value]:
+                    valid_ids.pop()
+                    break
+                elif int(quantity) < GAME_CONFIG[value]:
+                    continue
+                else:
+                    RuntimeError("Something went wrong...")
+            else:
+                continue  # only executed if the inner loop did NOT break
+            break
+    print("Sum: ", sum(valid_ids))
